@@ -1,2 +1,0 @@
-This some code.
-python
