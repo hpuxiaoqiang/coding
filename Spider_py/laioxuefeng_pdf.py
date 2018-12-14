@@ -54,10 +54,37 @@ class Spider_For_LiaoXueFeng(object):
         # soup.new_tag()
         content = soup.find_all(class_='x-wiki-content')[0]
         content = str(content)
+
+        # 在第1行插入标题
+        title = soup.find('h4').get_text()
+        center_tag = soup.new_tag("center")
+        title_tag = soup.new_tag('h2')
+        title_tag.string = title
+        center_tag.insert(0, title_tag)
+        content.insert(0, center_tag)
+
+        content = str(content)
         print(content)
-        # print(type(content),type(html_template))
+        # 因为通过爬下来的网页,<a>标签下图片src的显示信息为一个加载的图标
+        # 而真正的图片URL藏在data-src下,因此通过正则表达式将爬下来的网页中的src内容换为data-src中的内容
+
+        re_img_url = "(<img .*? data-src=\")(.*?)(\") (src=\")(.*?)(\"/>)"
+
+        # m相当于re.search(re_img_url,content)的结果
+        def fun(m):
+            if m.group(2) != m.group(5):
+                img_url = "".join([m.group(1), m.group(2), m.group(3), m.group(4), m.group(2), m.group(6)])
+                return img_url
+            else:
+                img_url = "".join([m.group(1), m.group(2), m.group(3), m.group(4), m.group(5), m.group(6)])
+                return img_url
+
+        # re.sub还允许使用函数对匹配项的替换进行复杂的处理,函数的传入参数既匹配到的group
+        #  写法等价 re.sub(r'(<img .*? data-src=\")(.*?)(\") (src=\")(.*?)(\"/>)',fun,content)
+        content = re.compile(re_img_url).sub(fun, content)
+
         html = html_template.format(content)
-        print(html)
+        html = str(html)
         try:
             f = open('index.html', 'w', encoding='utf-8')
             f.write(html)
@@ -116,6 +143,8 @@ def get_content():
     # 而真正的图片URL藏在data-src下,因此通过正则表达式将爬下来的网页中的src内容换为data-src中的内容
 
     re_img_url = "(<img .*? data-src=\")(.*?)(\") (src=\")(.*?)(\"/>)"
+
+    # m相当于re.search(re_img_url,content)的结果
     def fun(m):
         if m.group(2) != m.group(5):
             img_url = "".join([m.group(1),m.group(2),m.group(3),m.group(4),m.group(2),m.group(6)])
@@ -123,8 +152,9 @@ def get_content():
         else:
             img_url = "".join([m.group(1), m.group(2), m.group(3), m.group(4), m.group(5), m.group(6)])
             return img_url
-
-    # content = re.compile(re_img_url).sub(fun,content)
+    # re.sub还允许使用函数对匹配项的替换进行复杂的处理,函数的传入参数既匹配到的group
+    #  写法等价 re.sub(r'(<img .*? data-src=\")(.*?)(\") (src=\")(.*?)(\"/>)',fun,content)
+    content = re.compile(re_img_url).sub(fun,content)
 
     html = html_template.format(content)
     html = str(html)
