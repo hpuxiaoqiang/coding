@@ -1,5 +1,4 @@
 # -*- coding:utf-8 -*-
-import logging
 import os
 import time
 import re
@@ -114,26 +113,26 @@ class Spider_For_LiaoXueFeng(object):
         startTime = time.time()
         htmls_name = []
         # 获取ip列表
-        f = open('Available.txt', 'r')
-        lines = f.readlines()
-        i = 0
-        ip = lines[i].strip("\n")
-        proxy = {ip.lower().split(':')[0]: ip.lower()}
+        # f = open('Available.txt', 'r')
+        # lines = f.readlines()
+        # i = 0
+        # ip = lines[i].strip("\n")
+        # proxy = {ip.lower().split(':')[0]: ip.lower()}
         # 这个只request一次
-        self.get_menu_url_list(self.get_webInfo(self.start_url,proxies=proxy))
-        # 获取目录后睡眠5秒
-        time.sleep(5)
+        self.get_menu_url_list(self.get_webInfo(self.start_url))
+        # 获取目录后睡眠10秒
+        time.sleep(10)
 
         # request多次会封ip,因此要更换ip
         for filename,url in zip(self.name_list,self.url_list):
-            if i == len(lines):
-                break
-            ip = lines[i].strip("\n")
-            proxy = {ip.lower().split(':')[0]: ip.lower()}
+            # if i == len(lines):
+            #     break
+            # ip = lines[i].strip("\n")
+            # proxy = {ip.lower().split(':')[0]: ip.lower()}
             #  获取当前章节网页信息
-            res = self.get_webInfo(url,proxies=proxy)
+            res = self.get_webInfo(url)
             if res.status_code != 200:
-                i = i+1
+                # i = i+1
                 continue
             # 解析网页，得到文章内容
             html = self.get_content(res)
@@ -142,11 +141,11 @@ class Spider_For_LiaoXueFeng(object):
             try :
                f = open(filename+'.html','w')
                f.write(html)
-            except IOError as e:
+            except Exception as e:
                print(e)
             print(filename,':complete')
-            # 每爬完一章睡眠5秒
-            time.sleep(5)
+            # 每爬完一章睡眠15秒
+            time.sleep(15)
         self.Trans_to_PDF(htmls_name)
         total_time = time.time() - startTime
         print('总耗时为：',total_time)

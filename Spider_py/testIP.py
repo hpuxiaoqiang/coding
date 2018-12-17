@@ -25,13 +25,13 @@ for i in range(0,len(lines)):
     # print(proxy_temp)
     proxies.append(proxy_temp)
 f.close()
-w = open('Available.txt', 'w')
+w = open('Available.txt', 'a')
 for proxy in proxies:
     try:
         res = requests.get(url=url,headers=headers,proxies=proxy,timeout=3)
         if res.status_code == 200:
             ip,address = getIPinfo(res)
-            if ip != '106.34.112.59':
+            if ip != '1.195.108.216':
                 print(ip,address,": Available")
                 print(proxy['https'])
                 w.write(proxy['https']+'\n')
